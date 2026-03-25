@@ -11,6 +11,25 @@
 
 > **Disclaimer**: This is a personal fork/derivative of the OpenAiCode project. This project is not built by the OpenAiCode team and is not affiliated with or supported by them in any way. All trademarks belong to their respective owners.
 
+### About This Fork
+
+This project is a personal derivative of the original [OpenAiCode](https://github.com/anomalyco/opencode) with the following differences:
+
+| Feature           | Original OpenAiCode                       | This Fork                                           |
+| ----------------- | ----------------------------------------- | --------------------------------------------------- |
+| **Main Focus**    | General purpose AI coding agent           | Local AI models + Browser automation                |
+| **LLM Providers** | Cloud providers (OpenAI, Anthropic, etc.) | Local Ollama models (DeepSeek R1, Qwen3, etc.)      |
+| **Browser**       | Not included                              | Built-in headless browser automation (browse skill) |
+| **Installation**  | npm/pip/brew package managers             | Pre-configured for local development                |
+| **Updates**       | Official releases                         | Manual sync with upstream                           |
+
+### Key Features
+
+- **Local AI Models**: Optimized for running with Ollama locally, reducing API costs
+- **Browse Skill**: Integrated headless browser automation for QA testing and web automation
+- **Custom Skills**: Pre-configured with gstack skills (QA, code review, design review, etc.)
+- **Development Ready**: Includes complete development environment setup
+
 <p align="center">
   <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
   <a href="https://www.npmjs.com/package/opencode-ai"><img alt="npm" src="https://img.shields.io/npm/v/opencode-ai?style=flat-square" /></a>
