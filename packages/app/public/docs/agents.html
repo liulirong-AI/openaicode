@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agents 配置 - OpenAiCode</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #1a1a1a;
+        color: #e0e0e0;
+      }
+      h1 {
+        color: #58a6ff;
+        margin: 20px 0 10px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+      }
+      h2 {
+        color: #79c0ff;
+        margin: 18px 0 8px;
+      }
+      h3 {
+        color: #a5d6ff;
+        margin: 15px 0 6px;
+      }
+      a {
+        color: #58a6ff;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      code {
+        background: #2d2d2d;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: Consolas, Monaco, monospace;
+      }
+      pre {
+        background: #2d2d2d;
+        padding: 15px;
+        border-radius: 6px;
+        overflow-x: auto;
+      }
+      pre code {
+        background: none;
+        padding: 0;
+      }
+      ul,
+      ol {
+        margin: 10px 0 10px 20px;
+      }
+      li {
+        margin: 5px 0;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 10px 0;
+      }
+      th,
+      td {
+        border: 1px solid #333;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background: #2d2d2d;
+      }
+      .nav {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #2d2d2d;
+        padding: 15px;
+        border-radius: 8px;
+      }
+      .nav a {
+        display: block;
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav">
+      <strong>目录</strong>
+      <a href="README.html">首页</a>
+      <a href="config.html">配置指南</a>
+      <a href="agents.html">Agents</a>
+      <a href="commands.html">Commands</a>
+      <a href="providers.html">Providers</a>
+      <a href="themes.html">Themes</a>
+    </div>
+
+    <h1>Agents 配置</h1>
+
+    <h2>概述</h2>
+    <p>Agents 是可配置的 AI 助手，可以执行特定任务。</p>
+
+    <h2>Agent 目录结构</h2>
+    <pre><code>.opencode/
+├── agent/
+│   ├── triage.md      # 问题分类 Agent
+│   ├── docs.md        # 文档生成 Agent
+│   ├── translator.md  # 翻译 Agent
+│   └── duplicate-pr.md # 重复 PR 检测 Agent</code></pre>
+
+    <h2>Agent 定义</h2>
+    <p>在 <code>.opencode/agent/</code> 目录中创建 <code>.md</code> 文件来定义 Agent：</p>
+    <pre><code>---
+description: Agent 描述
+model: provider/model-name
+subtask: true
+---
+
+# Agent 指令
+
+在这里编写 Agent 的具体指令...</code></pre>
+
+    <h2>Agent 元数据</h2>
+    <table>
+      <tr>
+        <th>字段</th>
+        <th>说明</th>
+        <th>必填</th>
+      </tr>
+      <tr>
+        <td>description</td>
+        <td>Agent 功能描述</td>
+        <td>是</td>
+      </tr>
+      <tr>
+        <td>model</td>
+        <td>使用的模型</td>
+        <td>否</td>
+      </tr>
+      <tr>
+        <td>subtask</td>
+        <td>是否允许子任务</td>
+        <td>否</td>
+      </tr>
+    </table>
+
+    <h2>相关资源</h2>
+    <ul>
+      <li><a href="config.html">配置帮助</a></li>
+      <li><a href="commands.html">Commands 配置</a></li>
+    </ul>
+  </body>
+</html>

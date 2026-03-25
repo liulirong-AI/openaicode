@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Providers 配置 - OpenAiCode</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #1a1a1a;
+        color: #e0e0e0;
+      }
+      h1 {
+        color: #58a6ff;
+        margin: 20px 0 10px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+      }
+      h2 {
+        color: #79c0ff;
+        margin: 18px 0 8px;
+      }
+      h3 {
+        color: #a5d6ff;
+        margin: 15px 0 6px;
+      }
+      a {
+        color: #58a6ff;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      code {
+        background: #2d2d2d;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: Consolas, Monaco, monospace;
+      }
+      pre {
+        background: #2d2d2d;
+        padding: 15px;
+        border-radius: 6px;
+        overflow-x: auto;
+      }
+      pre code {
+        background: none;
+        padding: 0;
+      }
+      ul,
+      ol {
+        margin: 10px 0 10px 20px;
+      }
+      li {
+        margin: 5px 0;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 10px 0;
+      }
+      th,
+      td {
+        border: 1px solid #333;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background: #2d2d2d;
+      }
+      .nav {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #2d2d2d;
+        padding: 15px;
+        border-radius: 8px;
+      }
+      .nav a {
+        display: block;
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav">
+      <strong>目录</strong>
+      <a href="README.html">首页</a>
+      <a href="config.html">配置指南</a>
+      <a href="agents.html">Agents</a>
+      <a href="commands.html">Commands</a>
+      <a href="providers.html">Providers</a>
+      <a href="themes.html">Themes</a>
+    </div>
+
+    <h1>Providers 配置</h1>
+
+    <h2>概述</h2>
+    <p>Providers 是 AI 模型提供商，OpenAiCode 支持多种 AI 提供商。</p>
+
+    <h2>支持的 Providers</h2>
+    <table>
+      <tr>
+        <th>Provider</th>
+        <th>SDK</th>
+        <th>说明</th>
+      </tr>
+      <tr>
+        <td>OpenAI</td>
+        <td>@ai-sdk/openai</td>
+        <td>GPT-4, GPT-4o, GPT-5</td>
+      </tr>
+      <tr>
+        <td>Anthropic</td>
+        <td>@ai-sdk/anthropic</td>
+        <td>Claude 系列</td>
+      </tr>
+      <tr>
+        <td>Google</td>
+        <td>@ai-sdk/google</td>
+        <td>Gemini 模型</td>
+      </tr>
+      <tr>
+        <td>Azure OpenAI</td>
+        <td>@ai-sdk/azure</td>
+        <td>Azure 托管</td>
+      </tr>
+      <tr>
+        <td>Amazon Bedrock</td>
+        <td>@ai-sdk/amazon-bedrock</td>
+        <td>AWS 托管模型</td>
+      </tr>
+      <tr>
+        <td>OpenAI Compatible</td>
+        <td>@ai-sdk/openai-compatible</td>
+        <td>Ollama, LM Studio 等</td>
+      </tr>
+      <tr>
+        <td>OpenRouter</td>
+        <td>@openrouter/ai-sdk-provider</td>
+        <td>模型聚合</td>
+      </tr>
+    </table>
+
+    <h2>Ollama 本地模型配置</h2>
+    <pre><code>{
+  "provider": {
+    "ollama": {
+      "name": "Ollama 本地模型",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "qwen3-coder:30b": {
+          "name": "Qwen3 Coder 30B",
+          "tool_call": true,
+          "limit": { "context": 8192, "output": 2048 }
+        },
+        "deepseek-r1:32b": {
+          "name": "DeepSeek R1 32B",
+          "tool_call": true,
+          "reasoning": true,
+          "limit": { "context": 32000, "output": 8000 }
+        }
+      },
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      }
+    }
+  }
+}</code></pre>
+
+    <h2>模型配置选项</h2>
+    <table>
+      <tr>
+        <th>选项</th>
+        <th>说明</th>
+      </tr>
+      <tr>
+        <td>name</td>
+        <td>模型显示名称</td>
+      </tr>
+      <tr>
+        <td>tool_call</td>
+        <td>是否启用工具调用</td>
+      </tr>
+      <tr>
+        <td>reasoning</td>
+        <td>是否启用推理模式</td>
+      </tr>
+      <tr>
+        <td>attachment</td>
+        <td>是否支持文件上传</td>
+      </tr>
+      <tr>
+        <td>limit.context</td>
+        <td>上下文窗口大小</td>
+      </tr>
+      <tr>
+        <td>limit.output</td>
+        <td>输出最大 token 数</td>
+      </tr>
+    </table>
+
+    <h2>相关资源</h2>
+    <ul>
+      <li><a href="config.html">配置帮助</a></li>
+      <li><a href="agents.html">Agents 配置</a></li>
+    </ul>
+  </body>
+</html>
