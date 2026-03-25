@@ -8,6 +8,9 @@
   </a>
 </p>
 <p align="center">The open source AI coding agent.</p>
+
+> **Disclaimer**: This is a personal fork/derivative of the OpenAiCode project. This project is not built by the OpenAiCode team and is not affiliated with or supported by them in any way. All trademarks belong to their respective owners.
+
 <p align="center">
   <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
   <a href="https://www.npmjs.com/package/opencode-ai"><img alt="npm" src="https://img.shields.io/npm/v/opencode-ai?style=flat-square" /></a>
