@@ -13,7 +13,7 @@
 
 ### About This Fork
 
-This project is a personal derivative of the original [OpenAiCode](https://github.com/anomalyco/opencode) with the following differences:
+This project is a personal derivative of the original [OpenAiCode](https://github.com/liulirong-AI/openaicode) with the following differences:
 
 | Feature           | Original OpenAiCode                       | This Fork                                           |
 | ----------------- | ----------------------------------------- | --------------------------------------------------- |
@@ -33,7 +33,7 @@ This project is a personal derivative of the original [OpenAiCode](https://githu
 <p align="center">
   <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
   <a href="https://www.npmjs.com/package/opencode-ai"><img alt="npm" src="https://img.shields.io/npm/v/opencode-ai?style=flat-square" /></a>
-  <a href="https://github.com/anomalyco/opencode/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/anomalyco/opencode/publish.yml?style=flat-square&branch=dev" /></a>
+  <a href="https://github.com/liulirong-AI/openaicode/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/anomalyco/opencode/publish.yml?style=flat-square&branch=dev" /></a>
 </p>
 
 <p align="center">
@@ -88,7 +88,7 @@ nix run nixpkgs#opencode           # or github:anomalyco/opencode for latest dev
 
 ### Desktop App (BETA)
 
-OpenAiCode is also available as a desktop application. Download directly from the [releases page](https://github.com/anomalyco/opencode/releases) or [opencode.ai/download](https://opencode.ai/download).
+OpenAiCode is also available as a desktop application. Download directly from the [releases page](https://github.com/liulirong-AI/openaicode/releases) or [opencode.ai/download](https://opencode.ai/download).
 
 | Platform              | Download                              |
 | --------------------- | ------------------------------------- |

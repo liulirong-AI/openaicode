@@ -25,6 +25,6 @@
 
 ### 更多信息
 
-- GitHub: https://github.com/anomalyco/opencode
-- 问题反馈: https://github.com/anomalyco/opencode/issues
+- GitHub: https://github.com/liulirong-AI/openaicode
+- 问题反馈: https://github.com/liulirong-AI/openaicode/issues
 - Discord: https://opencode.ai/discord

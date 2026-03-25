@@ -22,7 +22,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/anomalyco/opencode.git
+git clone https://github.com/liulirong-AI/openaicode.git
 cd opencode
 
 # 安装依赖
