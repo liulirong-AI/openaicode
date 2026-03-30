@@ -5,7 +5,8 @@
   "type": "module",
   "packageManager": "bun@1.3.10",
   "scripts": {
-    "browse": "bun run ../../.opencode/skills/browse/src/cli.ts"
+    "browse": "bun run ../../.opencode/skills/browse/src/cli.ts",
+    "publish": "bun run ../../.opencode/skills/publish/src/cli.ts"
   },
   "workspaces": {
     "packages": [

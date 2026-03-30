@@ -26,6 +26,39 @@ import {
 } from "playwright"
 import { addConsoleEntry, addNetworkEntry, addDialogEntry, networkBuffer, type DialogEntry } from "./buffers"
 import { validateNavigationUrl } from "./url-validation"
+import * as fs from "fs"
+
+function findChrome(): string {
+  if (process.env.CHROME_PATH) return process.env.CHROME_PATH
+
+  const IS_WINDOWS = process.platform === "win32"
+  const IS_MAC = process.platform === "darwin"
+
+  const windowsPaths = [
+    "D:/AIcode/chrome-win/chrome.exe",
+    "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+    `${process.env.LOCALAPPDATA || ""}/Google/Chrome/Application/chrome.exe`,
+    `${process.env.PROGRAMFILES || ""}/Google/Chrome/Application/chrome.exe`,
+  ]
+
+  const macPaths = [
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    `${process.env.HOME || ""}/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`,
+  ]
+
+  const linuxPaths = ["/usr/bin/google-chrome", "/usr/bin/chromium-browser", "/usr/bin/chromium", "/snap/bin/chromium"]
+
+  const paths = IS_WINDOWS ? windowsPaths : IS_MAC ? macPaths : linuxPaths
+
+  for (const p of paths) {
+    if (p && fs.existsSync(p)) {
+      return p
+    }
+  }
+
+  throw new Error("Chrome not found. Set CHROME_PATH environment variable or install Chrome.")
+}
 
 export interface RefEntry {
   locator: Locator
@@ -70,7 +103,8 @@ export class BrowserManager {
   private consecutiveFailures: number = 0
 
   async launch() {
-    const chromePath = process.env.CHROME_PATH || "D:/AIcode/chrome-win/chrome.exe"
+    const chromePath = findChrome()
+    console.error(`[browse] Launching Chromium with path: ${chromePath}`)
     this.browser = await chromium.launch({
       headless: true,
       executablePath: chromePath,

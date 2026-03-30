@@ -5,6 +5,8 @@ import { Global } from "../global"
 import { Log } from "@/util/log"
 import path from "path"
 import { execSync } from "child_process"
+import { skillServiceManager } from "../skill/service-manager"
+import { browserServiceClient } from "../browser/service-client"
 
 const log = Log.create({ service: "tool.browse" })
 
@@ -15,8 +17,9 @@ Commands:
 - back / forward / reload: History and reload
 - text: Get cleaned page text
 - html [selector]: Get HTML content
-- snapshot [-i] [-c]: Get accessibility snapshot with refs (@e1, @e2...)
+- snapshot [-i] [-c] [-D]: Get accessibility snapshot with refs (@e1, @e2...)
 - screenshot [path]: Take screenshot
+- responsive [prefix]: Take screenshots at mobile/tablet/desktop sizes
 - click <selector>: Click element
 - fill <selector> <value>: Fill input
 - select <selector> <value>: Select dropdown option
@@ -28,6 +31,9 @@ Commands:
 - viewport <WxH>: Set viewport size
 - js <expr>: Run JavaScript expression
 - cookies / storage: Get browser state
+- console [--errors]: View console messages
+- network: View network requests
+- tabs / newtab / closetab: Tab management
 - url: Get current URL`
 
 function findGstackBrowse(): string | null {
@@ -72,6 +78,132 @@ async function executeWithBinary(command: string, args: string[]): Promise<strin
   })
 
   return result
+}
+
+async function executeWithService(command: string, args: string[]): Promise<string> {
+  // Ensure service is running
+  const state = await skillServiceManager.startService("browse")
+
+  // Update client state
+  browserServiceClient.setState({ port: state.port, token: state.token })
+
+  switch (command) {
+    case "goto": {
+      const url = args[0]
+      if (!url) throw new Error("Usage: browse goto <url>")
+      return await browserServiceClient.goto(url)
+    }
+    case "text":
+      return await browserServiceClient.text()
+    case "html": {
+      const selector = args[0]
+      return await browserServiceClient.html(selector)
+    }
+    case "snapshot": {
+      const interactive = args.includes("-i") || args.includes("--interactive")
+      const compact = args.includes("-c") || args.includes("--compact")
+      return await browserServiceClient.snapshot(interactive, compact)
+    }
+    case "screenshot": {
+      const outputPath = args[0]
+      return await browserServiceClient.screenshot(outputPath)
+    }
+    case "responsive": {
+      const prefix = args[0]
+      return await browserServiceClient.responsive(prefix)
+    }
+    case "click": {
+      const selector = args[0]
+      if (!selector) throw new Error("Usage: browse click <selector>")
+      return await browserServiceClient.click(selector)
+    }
+    case "fill": {
+      const selector = args[0]
+      const value = args[1]
+      if (!selector || !value) throw new Error("Usage: browse fill <selector> <value>")
+      return await browserServiceClient.fill(selector, value)
+    }
+    case "select": {
+      const selector = args[0]
+      const value = args[1]
+      if (!selector || !value) throw new Error("Usage: browse select <selector> <value>")
+      return await browserServiceClient.select(selector, value)
+    }
+    case "hover": {
+      const selector = args[0]
+      if (!selector) throw new Error("Usage: browse hover <selector>")
+      return await browserServiceClient.hover(selector)
+    }
+    case "type": {
+      const selector = args[0]
+      const text = args[1]
+      if (!selector || !text) throw new Error("Usage: browse type <selector> <text>")
+      return await browserServiceClient.type(selector, text)
+    }
+    case "press": {
+      const key = args[0]
+      if (!key) throw new Error("Usage: browse press <key>")
+      return await browserServiceClient.press(key)
+    }
+    case "scroll": {
+      const selector = args[0]
+      return await browserServiceClient.scroll(selector)
+    }
+    case "wait": {
+      const selector = args[0]
+      if (!selector) throw new Error("Usage: browse wait <selector>")
+      return await browserServiceClient.wait(selector)
+    }
+    case "js": {
+      const expr = args[0]
+      if (!expr) throw new Error("Usage: browse js <expression>")
+      return await browserServiceClient.js(expr)
+    }
+    case "cookies":
+      return await browserServiceClient.cookies()
+    case "storage":
+      return await browserServiceClient.storage()
+    case "url":
+      return await browserServiceClient.url()
+    case "back":
+      return await browserServiceClient.back()
+    case "forward":
+      return await browserServiceClient.forward()
+    case "reload":
+      return await browserServiceClient.reload()
+    case "viewport": {
+      const wh = args[0]
+      if (!wh) throw new Error("Usage: browse viewport <WxH>")
+      const [w, h] = wh.split("x").map(Number)
+      if (isNaN(w) || isNaN(h)) throw new Error("Invalid viewport format. Use WxH (e.g., 1280x720)")
+      return await browserServiceClient.viewport(w, h)
+    }
+    case "console": {
+      const filter = args.includes("--errors") ? "errors" : undefined
+      return await browserServiceClient.console(filter)
+    }
+    case "network": {
+      const clear = args.includes("--clear")
+      return await browserServiceClient.network(clear)
+    }
+    case "tabs":
+      return await browserServiceClient.tabs()
+    case "newtab": {
+      const url = args[0]
+      return await browserServiceClient.newtab(url)
+    }
+    case "closetab": {
+      const id = args[0]
+      return await browserServiceClient.closetab(id)
+    }
+    case "tab": {
+      const id = args[0]
+      if (!id) throw new Error("Usage: browse tab <id>")
+      return await browserServiceClient.tab(id)
+    }
+    default:
+      return await executeWithBinary(command, args)
+  }
 }
 
 async function executeWithBuiltin(command: string, args: string[]): Promise<string> {
@@ -196,11 +328,22 @@ export const BrowseTool = Tool.define("browse", async () => {
         metadata: { command, args, projectDir },
       })
 
+      // Set root directory for service manager
+      skillServiceManager.setRoot(projectDir)
+
       try {
-        const result = await executeWithBuiltin(command, args)
+        // Try service mode first (full-featured)
+        const result = await executeWithService(command, args)
         return { output: result, metadata: {}, title: "" }
       } catch (err: any) {
-        throw new Error(`Browse command failed: ${err.message}`)
+        // Fall back to built-in mode if service fails
+        log.warn(`Service mode failed, falling back to built-in: ${err.message}`)
+        try {
+          const result = await executeWithBuiltin(command, args)
+          return { output: result, metadata: {}, title: "" }
+        } catch (builtinErr: any) {
+          throw new Error(`Browse command failed: ${builtinErr.message}`)
+        }
       }
     },
   }

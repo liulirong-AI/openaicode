@@ -4,6 +4,15 @@
 - Local `main` ref may not exist; use `dev` or `origin/dev` for diffs.
 - Prefer automation: execute requested actions without confirmation unless blocked by missing info or safety/irreversibility.
 
+## Linting
+
+Run linting with:
+
+```bash
+bun run lint       # Check for issues
+bun run lint:fix   # Auto-fix issues
+```
+
 ## Style Guide
 
 ### General Principles

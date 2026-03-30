@@ -1,7 +1,39 @@
 import { spawn, type ChildProcess } from "node:child_process"
-import { existsSync, readFileSync, writeFileSync } from "node:fs"
-import { join } from "node:path"
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs"
+import { join, resolve } from "node:path"
 import { Global } from "../global"
+
+function findChrome(): string | null {
+  if (process.env.CHROME_PATH) return process.env.CHROME_PATH
+
+  const IS_WINDOWS = process.platform === "win32"
+  const IS_MAC = process.platform === "darwin"
+
+  const windowsPaths = [
+    "D:/AIcode/chrome-win/chrome.exe",
+    "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+    `${process.env.LOCALAPPDATA || ""}/Google/Chrome/Application/chrome.exe`,
+    `${process.env.PROGRAMFILES || ""}/Google/Chrome/Application/chrome.exe`,
+  ]
+
+  const macPaths = [
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    `${process.env.HOME || ""}/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`,
+  ]
+
+  const linuxPaths = ["/usr/bin/google-chrome", "/usr/bin/chromium-browser", "/usr/bin/chromium", "/snap/bin/chromium"]
+
+  const paths = IS_WINDOWS ? windowsPaths : IS_MAC ? macPaths : linuxPaths
+
+  for (const p of paths) {
+    if (p && existsSync(p)) {
+      return p
+    }
+  }
+
+  return null
+}
 
 interface ServiceInfo {
   id: string
@@ -70,7 +102,8 @@ class SkillServiceManager {
     const config = SKILL_SERVICES.find((s) => s.id === id)
     if (!config) return null
 
-    const stateFile = join(this.root, config.stateFile)
+    // Resolve stateFile relative to root (handles both absolute and relative paths)
+    const stateFile = resolve(this.root, config.stateFile)
     if (existsSync(stateFile)) {
       try {
         const state = JSON.parse(readFileSync(stateFile, "utf-8"))
@@ -106,11 +139,30 @@ class SkillServiceManager {
 
     this.services.set(id, { id, name: config.name, pid: 0, port: 0, token: "", startedAt: "", status: "starting" })
 
+    // Ensure state directory exists
+    const stateDir = join(this.root, ".gstack")
+    if (!existsSync(stateDir)) {
+      mkdirSync(stateDir, { recursive: true })
+    }
+
+    // Set BROWSE_STATE_FILE env to ensure state file is created in project dir
+    // Auto-detect Chrome if not already set
+    const chromePath = findChrome()
+    const stateFilePath = join(this.root, config.stateFile)
+    const env: Record<string, string | undefined> = {
+      ...process.env,
+      ...config.env,
+      BROWSE_STATE_FILE: stateFilePath,
+    }
+    if (chromePath) {
+      env.CHROME_PATH = chromePath
+    }
+
     const proc = spawn(config.command[0], [...config.command.slice(1), ...config.args], {
       cwd: this.root,
       stdio: ["ignore", "pipe", "pipe"],
       detached: true,
-      env: { ...process.env, ...config.env },
+      env,
     })
 
     this.processes.set(id, proc)
@@ -178,7 +230,7 @@ class SkillServiceManager {
 
   private async waitForService(id: string, timeout: number): Promise<ServiceInfo> {
     const config = SKILL_SERVICES.find((s) => s.id === id)!
-    const stateFile = join(this.root, config.stateFile)
+    const stateFile = resolve(this.root, config.stateFile)
     const start = Date.now()
 
     while (Date.now() - start < timeout) {
