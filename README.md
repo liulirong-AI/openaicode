@@ -27,8 +27,20 @@ This project is a personal derivative of the original [OpenCode](https://github.
 
 - **Local AI Models**: Optimized for running with Ollama locally, reducing API costs
 - **Browse Skill**: Integrated headless browser automation for QA testing and web automation
+- **Publish Skill**: Automated article posting to Kuaishou (快手) platform with CDP-based browser control
 - **Custom Skills**: Pre-configured with gstack skills (QA, code review, design review, etc.)
 - **Development Ready**: Includes complete development environment setup
+
+### Custom Skills
+
+| Skill      | Description                                 |
+| ---------- | ------------------------------------------- |
+| `/browse`  | Headless browser automation for web testing |
+| `/publish` | Kuaishou article publishing automation      |
+| `/qa`      | QA testing and bug fixing                   |
+| `/review`  | Code review and analysis                    |
+
+See [.opencode/skills/](.opencode/skills/) for all available skills.
 
 <p align="center">
   <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
