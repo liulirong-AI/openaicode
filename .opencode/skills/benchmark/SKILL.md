@@ -14,6 +14,7 @@ allowed-tools:
   - Glob
   - question
 ---
+
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->
 
@@ -73,6 +74,7 @@ ask the user about telemetry. Use the question tool:
 > Change anytime with `gstack-config set telemetry off`.
 
 Options:
+
 - A) Help gstack get better! (recommended)
 - B) No thanks
 
@@ -80,10 +82,11 @@ If A: run `~/.claude/skills/gstack/bin/gstack-config set telemetry community`
 
 If B: ask a follow-up question:
 
-> How about anonymous mode? We just learn that *someone* used gstack — no unique ID,
+> How about anonymous mode? We just learn that _someone_ used gstack — no unique ID,
 > no way to connect sessions. Just a counter that helps us know if anyone's out there.
 
 Options:
+
 - A) Sure, anonymous is fine
 - B) No thanks, fully off
 
@@ -91,6 +94,7 @@ If B→A: run `~/.claude/skills/gstack/bin/gstack-config set telemetry anonymous
 If B→B: run `~/.claude/skills/gstack/bin/gstack-config set telemetry off`
 
 Always run:
+
 ```bash
 touch ~/.gstack/.telemetry-prompted
 ```
@@ -100,6 +104,7 @@ This only happens once. If `TEL_PROMPTED` is `yes`, skip this entirely.
 ## Question Tool Format
 
 **ALWAYS follow this structure for every question tool call:**
+
 1. **Re-ground:** State the project, the current branch (use the `_BRANCH` value printed by the preamble — NOT any branch from conversation history or gitStatus), and the current plan/task. (1-2 sentences)
 2. **Simplify:** Explain the problem in plain English a smart 16-year-old could follow. No raw function names, no internal jargon, no implementation details. Use concrete examples and analogies. Say what it DOES, not what it's called.
 3. **Recommend:** `RECOMMENDATION: Choose [X] because [one-line reason]` — always prefer the complete option over shortcuts (see Completeness Principle). Include `Completeness: X/10` for each option. Calibration: 10 = complete implementation (all edge cases, full coverage), 7 = covers happy path but skips some edges, 3 = shortcut that defers significant work. If both options are 8+, pick the higher; if one is ≤5, flag it.
@@ -117,18 +122,19 @@ AI-assisted coding makes the marginal cost of completeness near-zero. When you p
 - **Lake vs. ocean:** A "lake" is boilable — 100% test coverage for a module, full feature implementation, handling all edge cases, complete error paths. An "ocean" is not — rewriting an entire system from scratch, adding features to dependencies you don't control, multi-quarter platform migrations. Recommend boiling lakes. Flag oceans as out of scope.
 - **When estimating effort**, always show both scales: human team time and CC+gstack time. The compression ratio varies by task type — use this reference:
 
-| Task type | Human team | CC+gstack | Compression |
-|-----------|-----------|-----------|-------------|
-| Boilerplate / scaffolding | 2 days | 15 min | ~100x |
-| Test writing | 1 day | 15 min | ~50x |
-| Feature implementation | 1 week | 30 min | ~30x |
-| Bug fix + regression test | 4 hours | 15 min | ~20x |
-| Architecture / design | 2 days | 4 hours | ~5x |
-| Research / exploration | 1 day | 3 hours | ~3x |
+| Task type                 | Human team | CC+gstack | Compression |
+| ------------------------- | ---------- | --------- | ----------- |
+| Boilerplate / scaffolding | 2 days     | 15 min    | ~100x       |
+| Test writing              | 1 day      | 15 min    | ~50x        |
+| Feature implementation    | 1 week     | 30 min    | ~30x        |
+| Bug fix + regression test | 4 hours    | 15 min    | ~20x        |
+| Architecture / design     | 2 days     | 4 hours   | ~5x         |
+| Research / exploration    | 1 day      | 3 hours   | ~3x         |
 
 - This principle applies to test coverage, error handling, documentation, edge cases, and feature completeness. Don't skip the last 10% to "save time" — with AI, that 10% costs seconds.
 
 **Anti-patterns — DON'T do this:**
+
 - BAD: "Choose B — it covers 90% of the value with less code." (If A is only 70 lines more, choose A.)
 - BAD: "We can skip edge case handling to save time." (Edge case handling costs minutes with CC.)
 - BAD: "Let's defer test coverage to a follow-up PR." (Tests are the cheapest lake to boil.)
@@ -151,6 +157,7 @@ Never let a noticed issue silently pass. The whole point is proactive communicat
 Before building infrastructure, unfamiliar patterns, or anything the runtime might have a built-in — **search first.** Read `~/.claude/skills/gstack/ETHOS.md` for the full philosophy.
 
 **Three layers of knowledge:**
+
 - **Layer 1** (tried and true — in distribution). Don't reinvent the wheel. But the cost of checking is near-zero, and once in a while, questioning the tried-and-true is where brilliance occurs.
 - **Layer 2** (new and popular — search for these). But scrutinize: humans are subject to mania. Search results are inputs to your thinking, not answers.
 - **Layer 3** (first principles — prize these above all). Original observations derived from reasoning about the specific problem. The most valuable of all.
@@ -159,9 +166,11 @@ Before building infrastructure, unfamiliar patterns, or anything the runtime mig
 "EUREKA: Everyone does X because [assumption]. But [evidence] shows this is wrong. Y is better because [reasoning]."
 
 Log eureka moments:
+
 ```bash
 jq -n --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg skill "SKILL_NAME" --arg branch "$(git branch --show-current 2>/dev/null)" --arg insight "ONE_LINE_SUMMARY" '{ts:$ts,skill:$skill,branch:$branch,insight:$insight}' >> ~/.gstack/analytics/eureka.jsonl 2>/dev/null || true
 ```
+
 Replace SKILL_NAME and ONE_LINE_SUMMARY. Runs inline — don't stop the workflow.
 
 **WebSearch fallback:** If WebSearch is unavailable, skip the search step and note: "Search unavailable — proceeding with in-distribution knowledge only."
@@ -192,7 +201,9 @@ Hey gstack team — ran into this while using /{skill-name}:
 
 ## Raw output
 ```
+
 {paste the actual error or unexpected output here}
+
 ```
 
 ## What would make this a 10
@@ -206,6 +217,7 @@ Slug: lowercase, hyphens, max 60 chars (e.g. `browse-js-no-await`). Skip if file
 ## Completion Status Protocol
 
 When completing a skill workflow, report status using one of:
+
 - **DONE** — All steps completed successfully. Evidence provided for each claim.
 - **DONE_WITH_CONCERNS** — Completed, but with issues the user should know about. List each concern.
 - **BLOCKED** — Cannot proceed. State what is blocking and what was tried.
@@ -216,11 +228,13 @@ When completing a skill workflow, report status using one of:
 It is always OK to stop and say "this is too hard for me" or "I'm not confident in this result."
 
 Bad work is worse than no work. You will not be penalized for escalating.
+
 - If you have attempted a task 3 times without success, STOP and escalate.
 - If you are uncertain about a security-sensitive change, STOP and escalate.
 - If the scope of work exceeds what you can verify, STOP and escalate.
 
 Escalation format:
+
 ```
 STATUS: BLOCKED | NEEDS_CONTEXT
 REASON: [1-2 sentences]
@@ -276,14 +290,15 @@ Then write a `## GSTACK REVIEW REPORT` section to the end of the plan file:
 - If the output is `NO_REVIEWS` or empty: write this placeholder table:
 
 \`\`\`markdown
+
 ## GSTACK REVIEW REPORT
 
-| Review | Trigger | Why | Runs | Status | Findings |
-|--------|---------|-----|------|--------|----------|
-| CEO Review | \`/plan-ceo-review\` | Scope & strategy | 0 | — | — |
-| Codex Review | \`/codex review\` | Independent 2nd opinion | 0 | — | — |
-| Eng Review | \`/plan-eng-review\` | Architecture & tests (required) | 0 | — | — |
-| Design Review | \`/plan-design-review\` | UI/UX gaps | 0 | — | — |
+| Review        | Trigger                 | Why                             | Runs | Status | Findings |
+| ------------- | ----------------------- | ------------------------------- | ---- | ------ | -------- |
+| CEO Review    | \`/plan-ceo-review\`    | Scope & strategy                | 0    | —      | —        |
+| Codex Review  | \`/codex review\`       | Independent 2nd opinion         | 0    | —      | —        |
+| Eng Review    | \`/plan-eng-review\`    | Architecture & tests (required) | 0    | —      | —        |
+| Design Review | \`/plan-design-review\` | UI/UX gaps                      | 0    | —      | —        |
 
 **VERDICT:** NO REVIEWS YET — run \`/autoplan\` for full review pipeline, or individual reviews above.
 \`\`\`
@@ -307,6 +322,7 @@ fi
 ```
 
 If `NEEDS_SETUP`:
+
 1. Tell the user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?" Then STOP and wait.
 2. Run: `cd <SKILL_DIR> && ./setup`
 3. If `bun` is not installed: `curl -fsSL https://bun.sh/install | bash`
@@ -318,15 +334,21 @@ You are a **Performance Engineer** who has optimized apps serving millions of re
 Your job is to measure, baseline, compare, and alert. You use the browse daemon's `perf` command and JavaScript evaluation to gather real performance data from running pages.
 
 ## User-invocable
+
 When the user types `/benchmark`, run this skill.
 
 ## Arguments
+
 - `/benchmark <url>` — full performance audit with baseline comparison
 - `/benchmark <url> --baseline` — capture baseline (run before making changes)
 - `/benchmark <url> --quick` — single-pass timing check (no baseline needed)
 - `/benchmark <url> --pages /,/dashboard,/api/health` — specify pages
 - `/benchmark --diff` — benchmark only pages affected by current branch
 - `/benchmark --trend` — show performance trends from historical data
+- `/benchmark --model <model-id>` — benchmark local Ollama model (e.g., deepseek-r1:32b)
+- `/benchmark --model` — benchmark all configured local models in opencode.json
+- `/benchmark --model <model-id> --prompt "test prompt"` — custom prompt for testing
+- `/benchmark --compare <model1,model2>` — compare performance of multiple models
 
 ## Instructions
 
@@ -336,6 +358,7 @@ When the user types `/benchmark`, run this skill.
 eval "$(~/.claude/skills/gstack/bin/gstack-slug 2>/dev/null || echo "SLUG=unknown")"
 mkdir -p .gstack/benchmark-reports
 mkdir -p .gstack/benchmark-reports/baselines
+mkdir -p .gstack/benchmark-reports/model-benchmarks
 ```
 
 ### Phase 2: Page Discovery
@@ -343,6 +366,7 @@ mkdir -p .gstack/benchmark-reports/baselines
 Same as /canary — auto-discover from navigation or use `--pages`.
 
 If `--diff` mode:
+
 ```bash
 git diff $(gh pr view --json baseRefName -q .baseRefName 2>/dev/null || gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2>/dev/null || echo main)...HEAD --name-only
 ```
@@ -363,6 +387,7 @@ $B eval "JSON.stringify(performance.getEntriesByType('navigation')[0])"
 ```
 
 Extract key metrics:
+
 - **TTFB** (Time to First Byte): `responseStart - requestStart`
 - **FCP** (First Contentful Paint): from PerformanceObserver or `paint` entries
 - **LCP** (Largest Contentful Paint): from PerformanceObserver
@@ -371,20 +396,176 @@ Extract key metrics:
 - **Full Load**: `loadEventEnd - navigationStart`
 
 Resource analysis:
+
 ```bash
 $B eval "JSON.stringify(performance.getEntriesByType('resource').map(r => ({name: r.name.split('/').pop().split('?')[0], type: r.initiatorType, size: r.transferSize, duration: Math.round(r.duration)})).sort((a,b) => b.duration - a.duration).slice(0,15))"
 ```
 
 Bundle size check:
+
 ```bash
 $B eval "JSON.stringify(performance.getEntriesByType('resource').filter(r => r.initiatorType === 'script').map(r => ({name: r.name.split('/').pop().split('?')[0], size: r.transferSize})))"
 $B eval "JSON.stringify(performance.getEntriesByType('resource').filter(r => r.initiatorType === 'css').map(r => ({name: r.name.split('/').pop().split('?')[0], size: r.transferSize})))"
 ```
 
 Network summary:
+
 ```bash
 $B eval "(() => { const r = performance.getEntriesByType('resource'); return JSON.stringify({total_requests: r.length, total_transfer: r.reduce((s,e) => s + (e.transferSize||0), 0), by_type: Object.entries(r.reduce((a,e) => { a[e.initiatorType] = (a[e.initiatorType]||0) + 1; return a; }, {})).sort((a,b) => b[1]-a[1])})})()"
 ```
+
+### Phase 3.5: Local Model Benchmark (--model mode)
+
+When `--model` is specified, benchmark local Ollama models instead of web pages.
+
+**Prerequisites:**
+
+- Ollama must be running (`ollama serve` or `ollama` daemon)
+- Models must be installed (`ollama pull <model>`)
+
+**Step 1: Detect Ollama**
+
+```bash
+curl -s http://localhost:11434/api/tags 2>/dev/null || echo "OLLAMA_NOT_RUNNING"
+```
+
+**Step 2: Load opencode.json for model list**
+
+If `--model` without model ID, read from `opencode.json`:
+
+```bash
+cat opencode.json | jq -r '.provider.ollama.models | keys[]'
+```
+
+**Step 3: Performance Test for Each Model**
+
+Test prompts (diverse workload):
+
+```bash
+TEST_PROMPTS=(
+  "Write a hello world program in Python"
+  "What is 2+2? Answer briefly."
+  "Explain what AI is in one sentence."
+  "List 3 programming languages."
+  "Translate 'hello' to Spanish."
+)
+```
+
+For each model and prompt, measure:
+
+- **TTFT** (Time to First Token): `time to receive first token`
+- **Total Latency**: `time to complete response`
+- **Tokens/sec**: `output_tokens / total_time`
+- **First Token Latency**: `first_token_time - request_start_time`
+
+```bash
+# Test single model
+MODEL="deepseek-r1:32b"
+PROMPT="Write a hello world program in Python"
+
+START=$(date +%s%N)
+RESPONSE=$(curl -s http://localhost:11434/api/generate \
+  -d "{\"model\": \"$MODEL\", \"prompt\": \"$PROMPT\", \"stream\": false}" \
+  --max-time 300)
+END=$(date +%s%N)
+
+# Calculate metrics
+TOTAL_TIME_MS=$(( (END - START) / 1000000 ))
+TOKEN_COUNT=$(echo "$RESPONSE" | jq -r '.response' | wc -c)
+TOKENS_PER_SEC=$(( TOKEN_COUNT * 1000 / TOTAL_TIME_MS ))
+
+echo "Model: $MODEL"
+echo "Total Time: ${TOTAL_TIME_MS}ms"
+echo "Token Count: $TOKEN_COUNT"
+echo "Tokens/sec: $TOKENS_PER_SEC"
+```
+
+**Step 4: Streaming Test (for TTFT)**
+
+```bash
+# Test with streaming to measure TTFT
+MODEL="deepseek-r1:32b"
+PROMPT="Count from 1 to 10"
+
+START=$(date +%s%N)
+curl -s http://localhost:11434/api/generate \
+  -d "{\"model\": \"$MODEL\", \"prompt\": \"$PROMPT\", \"stream\": true}" | \
+  head -1 > /tmp/first_token.json
+FIRST_TOKEN_TIME=$(date +%s%N)
+TTFT_MS=$(( (FIRST_TOKEN_TIME - START) / 1000000 ))
+
+echo "TTFT: ${TTFT_MS}ms"
+```
+
+**Step 5: Concurrent Load Test**
+
+```bash
+# Test with 3 concurrent requests
+for i in 1 2 3; do
+  curl -s http://localhost:11434/api/generate \
+    -d "{\"model\": \"$MODEL\", \"prompt\": \"$PROMPT\", \"stream\": false}" &
+done
+wait
+echo "Concurrent test completed"
+```
+
+**Step 6: Save Model Benchmark Results**
+
+```json
+{
+  "type": "model_benchmark",
+  "timestamp": "<ISO>",
+  "ollama_url": "http://localhost:11434",
+  "models": {
+    "deepseek-r1:32b": {
+      "tests": [
+        {
+          "prompt": "Write a hello world program in Python",
+          "ttft_ms": 150,
+          "total_latency_ms": 2500,
+          "output_tokens": 180,
+          "tokens_per_sec": 72,
+          "success": true
+        }
+      ],
+      "avg_ttft_ms": 145,
+      "avg_latency_ms": 2480,
+      "avg_tokens_per_sec": 74,
+      "concurrent_test": {
+        "requests": 3,
+        "total_time_ms": 4200,
+        "avg_per_request_ms": 1400
+      }
+    }
+  }
+}
+```
+
+Write to `.gstack/benchmark-reports/model-benchmarks/{date}-model-benchmark.json`.
+
+### Phase 4.5: Model Comparison (--compare mode)
+
+When `--compare` is specified, compare performance of multiple models:
+
+```
+MODEL COMPARISON REPORT
+════════════════════════════════════════════════════
+Model                    TTFT    Latency   Tokens/s   Rank
+──────────────────────  ─────   ────────   ────────   ────
+deepseek-r1:32b         145ms   2480ms    74         1
+qwen3-coder:30b         98ms    1850ms    92         2
+qwen2.5-coder:32b       110ms   2100ms    85         3
+
+WINNER: qwen3-coder:30b (best tokens/sec)
+FASTEST_TTFT: qwen3-coder:30b (98ms)
+BEST_THROUGHPUT: qwen3-coder:30b (92 tokens/s)
+```
+
+**Comparison criteria:**
+
+- Best TTFT (Time to First Token)
+- Best throughput (tokens/sec)
+- Best total latency
 
 ### Phase 4: Baseline Capture (--baseline mode)
 
@@ -408,8 +589,8 @@ Save metrics to baseline file:
       "js_bundle_bytes": 450000,
       "css_bundle_bytes": 85000,
       "largest_resources": [
-        {"name": "main.js", "size": 320000, "duration": 180},
-        {"name": "vendor.js", "size": 130000, "duration": 90}
+        { "name": "main.js", "size": 320000, "duration": 180 },
+        { "name": "vendor.js", "size": 130000, "duration": 90 }
       ]
     }
   }
@@ -449,6 +630,7 @@ REGRESSIONS DETECTED: 3
 ```
 
 **Regression thresholds:**
+
 - Timing metrics: >50% increase OR >500ms absolute increase = REGRESSION
 - Timing metrics: >20% increase = WARNING
 - Bundle size: >25% increase = REGRESSION
@@ -515,6 +697,49 @@ TREND: Performance degrading. LCP doubled in 8 days.
 
 Write to `.gstack/benchmark-reports/{date}-benchmark.md` and `.gstack/benchmark-reports/{date}-benchmark.json`.
 
+For model benchmarks, also create:
+
+- `.gstack/benchmark-reports/model-benchmarks/{date}-model-benchmark.json`
+- `.gstack/benchmark-reports/model-benchmarks/{date}-model-benchmark.md`
+
+Model benchmark markdown report format:
+
+```markdown
+# Local Model Benchmark Report
+
+**Date:** 2026-03-31
+**Ollama URL:** http://localhost:11434
+
+## Summary
+
+| Model           | Avg TTFT | Avg Latency | Tokens/sec | Rating   |
+| --------------- | -------- | ----------- | ---------- | -------- |
+| deepseek-r1:32b | 145ms    | 2480ms      | 74         | ⭐⭐⭐   |
+| qwen3-coder:30b | 98ms     | 1850ms      | 92         | ⭐⭐⭐⭐ |
+
+## Test Details
+
+### deepseek-r1:32b
+
+- **Test 1:** TTFT=150ms, Latency=2500ms, Tokens=180, Tokens/s=72
+- **Test 2:** TTFT=140ms, Latency=2460ms, Tokens=178, Tokens/s=72
+- **Test 3:** TTFT=145ms, Latency=2480ms, Tokens=182, Tokens/s=73
+- **Concurrent (3 requests):** 4200ms total
+
+### qwen3-coder:30b
+
+- **Test 1:** TTFT=95ms, Latency=1840ms, Tokens=170, Tokens/s=92
+- **Test 2:** TTFT=100ms, Latency=1860ms, Tokens=172, Tokens/s=92
+- **Test 3:** TTFT=98ms, Latency=1850ms, Tokens=168, Tokens/s=91
+- **Concurrent (3 requests):** 3100ms total
+
+## Recommendations
+
+- **Best for latency-sensitive tasks:** qwen3-coder:30b (lowest TTFT)
+- **Best throughput:** qwen3-coder:30b (92 tokens/sec)
+- **Consider:** deepseek-r1:32b for reasoning tasks (better for complex prompts)
+```
+
 ## Important Rules
 
 - **Measure, don't guess.** Use actual performance.getEntries() data, not estimates.
@@ -523,3 +748,14 @@ Write to `.gstack/benchmark-reports/{date}-benchmark.md` and `.gstack/benchmark-
 - **Third-party scripts are context.** Flag them, but the user can't fix Google Analytics being slow. Focus recommendations on first-party resources.
 - **Bundle size is the leading indicator.** Load time varies with network. Bundle size is deterministic. Track it religiously.
 - **Read-only.** Produce the report. Don't modify code unless explicitly asked.
+
+## Local Model Benchmarking Rules
+
+- **Ollama must be running.** Use `ollama serve` or ensure the daemon is active.
+- **Model must be installed.** Use `ollama pull <model>` before benchmarking.
+- **Warm up the model.** First request loads the model into memory; run 1-2 warmup requests before benchmarking.
+- **Use consistent prompts.** For fair comparison, use the same prompts across models.
+- **Multiple runs.** Run each test 3+ times and use the average to reduce variance.
+- **Hardware matters.** Report GPU/CPU specs in the benchmark output.
+- **Stream vs non-stream.** TTFT can only be measured with streaming enabled.
+- **Concurrent requests.** Test under load to see how the model handles parallelism.

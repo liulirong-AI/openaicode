@@ -13,6 +13,9 @@
  * Context recreation (useragent):
  *   recreateContext() saves cookies/storage/URLs, creates new context,
  *   restores state. Falls back to clean slate on any failure.
+ *
+ * Device presets:
+ *   Predefined mobile devices with viewport, userAgent, deviceScaleFactor
  */
 
 import {
@@ -23,7 +26,91 @@ import {
   type Page,
   type Locator,
   type Cookie,
+  type DeviceDescriptor,
 } from "playwright"
+
+export const DEVICE_PRESETS: Record<string, DeviceDescriptor> = {
+  "iphone-15-pro": {
+    viewport: { width: 393, height: 852 },
+    userAgent:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+    deviceScaleFactor: 3,
+    isMobile: true,
+    hasTouch: true,
+  },
+  "iphone-15-pro-max": {
+    viewport: { width: 430, height: 932 },
+    userAgent:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+    deviceScaleFactor: 3,
+    isMobile: true,
+    hasTouch: true,
+  },
+  "iphone-se": {
+    viewport: { width: 375, height: 667 },
+    userAgent:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1",
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  },
+  "pixel-8": {
+    viewport: { width: 412, height: 915 },
+    userAgent:
+      "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    deviceScaleFactor: 2.625,
+    isMobile: true,
+    hasTouch: true,
+  },
+  "pixel-8-pro": {
+    viewport: { width: 412, height: 912 },
+    userAgent:
+      "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    deviceScaleFactor: 2.625,
+    isMobile: true,
+    hasTouch: true,
+  },
+  "samsung-galaxy-s24": {
+    viewport: { width: 360, height: 780 },
+    userAgent:
+      "Mozilla/5.0 (Linux; Android 14; SM-S921B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    deviceScaleFactor: 3,
+    isMobile: true,
+    hasTouch: true,
+  },
+  "ipad-pro-12.9": {
+    viewport: { width: 1024, height: 1366 },
+    userAgent:
+      "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 iPad Safari/604.1",
+    deviceScaleFactor: 2,
+    isMobile: false,
+    hasTouch: true,
+  },
+  "ipad-mini": {
+    viewport: { width: 768, height: 1024 },
+    userAgent:
+      "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 iPad Safari/604.1",
+    deviceScaleFactor: 2,
+    isMobile: false,
+    hasTouch: true,
+  },
+  "iphone-14": {
+    viewport: { width: 390, height: 844 },
+    userAgent:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1",
+    deviceScaleFactor: 3,
+    isMobile: true,
+    hasTouch: true,
+  },
+  "galaxy-s23": {
+    viewport: { width: 360, height: 780 },
+    userAgent:
+      "Mozilla/5.0 (Linux; Android 13; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    deviceScaleFactor: 3,
+    isMobile: true,
+    hasTouch: true,
+  },
+}
 import { addConsoleEntry, addNetworkEntry, addDialogEntry, networkBuffer, type DialogEntry } from "./buffers"
 import { validateNavigationUrl } from "./url-validation"
 import * as fs from "fs"
@@ -233,6 +320,10 @@ export class BrowserManager {
     return page
   }
 
+  getContext(): BrowserContext | null {
+    return this.context
+  }
+
   getCurrentUrl(): string {
     try {
       return this.getPage().url()
@@ -332,6 +423,78 @@ export class BrowserManager {
 
   getUserAgent(): string | null {
     return this.customUserAgent
+  }
+
+  // ─── Device Presets ─────────────────────────────────────────
+  private currentDevice: string | null = null
+
+  async setDevice(deviceName: string): Promise<string> {
+    const device = DEVICE_PRESETS[deviceName]
+    if (!device) {
+      const available = Object.keys(DEVICE_PRESETS).join(", ")
+      throw new Error(`Unknown device: ${deviceName}. Available: ${available}`)
+    }
+
+    this.currentDevice = deviceName
+    this.customUserAgent = device.userAgent
+
+    // Recreate context with device settings
+    const error = await this.recreateContext()
+    if (error) {
+      return `Device set to ${deviceName} but: ${error}`
+    }
+    return `Device set to ${deviceName} (${device.viewport.width}x${device.viewport.height})`
+  }
+
+  getDevice(): string | null {
+    return this.currentDevice
+  }
+
+  getAvailableDevices(): string[] {
+    return Object.keys(DEVICE_PRESETS)
+  }
+
+  // ─── Request Interception ─────────────────────────────────
+  private requestBlockList: string[] = []
+  private requestMockMap: Map<string, string> = new Map()
+
+  async setRequestBlock(patterns: string[]): Promise<void> {
+    this.requestBlockList = patterns
+    if (!this.context) return
+
+    await this.context.route("**/*", (route) => {
+      const url = route.request().url()
+      for (const pattern of this.requestBlockList) {
+        if (url.includes(pattern) || new RegExp(pattern).test(url)) {
+          route.abort("blockedbyclient")
+          return
+        }
+      }
+      route.continue()
+    })
+  }
+
+  async setRequestMock(urlPattern: string, response: string): Promise<void> {
+    this.requestMockMap.set(urlPattern, response)
+    if (!this.context) return
+
+    await this.context.route(`**/*${urlPattern}*`, (route) => {
+      const mockResponse = this.requestMockMap.get(urlPattern)
+      if (mockResponse) {
+        route.fulfill({ body: mockResponse })
+      } else {
+        route.continue()
+      }
+    })
+  }
+
+  async clearRequestMocks(): Promise<void> {
+    this.requestMockMap.clear()
+    this.requestBlockList = []
+    // Recreate context to clear routes
+    if (this.browser && this.context) {
+      await this.recreateContext()
+    }
   }
 
   // ─── State Save/Restore (shared by recreateContext + handoff) ─

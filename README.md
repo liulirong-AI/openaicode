@@ -26,19 +26,25 @@ This project is a personal derivative of the original [OpenCode](https://github.
 ### Key Features
 
 - **Local AI Models**: Optimized for running with Ollama locally, reducing API costs
-- **Browse Skill**: Integrated headless browser automation for QA testing and web automation
+- **Intelligent Model Routing**: Auto-select best model based on task type (reasoning, code, vision, fast)
+- **Persistent Memory**: Cross-session context storage for personalized AI assistance
+- **Browse Skill**: Integrated headless browser automation with mobile simulation
 - **Publish Skill**: Automated article posting to Kuaishou (快手) platform with CDP-based browser control
+- **Benchmark Skill**: Performance testing for web pages and local AI models
 - **Custom Skills**: Pre-configured with gstack skills (QA, code review, design review, etc.)
 - **Development Ready**: Includes complete development environment setup
 
 ### Custom Skills
 
-| Skill      | Description                                 |
-| ---------- | ------------------------------------------- |
-| `/browse`  | Headless browser automation for web testing |
-| `/publish` | Kuaishou article publishing automation      |
-| `/qa`      | QA testing and bug fixing                   |
-| `/review`  | Code review and analysis                    |
+| Skill            | Description                                           |
+| ---------------- | ----------------------------------------------------- |
+| `/browse`        | Headless browser automation with mobile simulation    |
+| `/benchmark`     | Performance testing for web pages and local AI models |
+| `/publish`       | Kuaishou article publishing automation                |
+| `/qa`            | QA testing and bug fixing                             |
+| `/review`        | Code review and analysis                              |
+| `/design-review` | Visual QA and design consistency audit                |
+| `/canary`        | Post-deploy monitoring and anomaly detection          |
 
 See [.opencode/skills/](.opencode/skills/) for all available skills.
 

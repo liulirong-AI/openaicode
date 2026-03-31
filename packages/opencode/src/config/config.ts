@@ -1219,6 +1219,41 @@ export namespace Config {
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
         })
         .optional(),
+      model_routing: z
+        .object({
+          enabled: z.boolean().optional().describe("Enable intelligent model routing"),
+          default_model: ModelId.optional().describe("Default model when no routing rule matches"),
+          rules: z
+            .array(
+              z.object({
+                name: z.string().describe("Rule name for documentation"),
+                match: z
+                  .object({
+                    keywords: z.array(z.string()).optional().describe("Keywords to match in the prompt"),
+                    regex: z.string().optional().describe("Regex pattern to match"),
+                  })
+                  .optional(),
+                model: ModelId.describe("Model to use when this rule matches"),
+                reasoning_required: z.boolean().optional().describe("Require reasoning capability"),
+                tool_call_required: z.boolean().optional().describe("Require tool calling capability"),
+                prefer_fast: z.boolean().optional().describe("Prefer fast/small model"),
+                modalities: z.array(z.string()).optional().describe("Required input modalities"),
+              }),
+            )
+            .optional()
+            .describe("Routing rules for intelligent model selection"),
+        })
+        .optional()
+        .describe("Intelligent model routing configuration"),
+      memory: z
+        .object({
+          enabled: z.boolean().optional().describe("Enable persistent memory across sessions"),
+          auto_capture: z.boolean().optional().describe("Automatically capture important context"),
+          max_memories: z.number().int().positive().optional().describe("Maximum number of memories to store"),
+          min_importance: z.number().int().min(0).max(10).optional().describe("Minimum importance to capture (0-10)"),
+        })
+        .optional()
+        .describe("Memory configuration for persistent context"),
     })
     .strict()
     .meta({

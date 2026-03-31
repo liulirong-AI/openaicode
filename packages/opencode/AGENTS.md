@@ -76,3 +76,98 @@ bun run browse stop                       # Stop server
 - State saved in `.gstack/browse.json`
 - Server auto-shuts down after 30min idle
 - Uses Playwright with Chrome
+
+### Mobile Device Simulation
+
+The browse skill supports mobile device presets:
+
+```bash
+bun run browse device iphone-15-pro    # Set iPhone 15 Pro
+bun run browse device pixel-8           # Set Pixel 8
+bun run browse device --list            # List all available devices
+```
+
+### Request Interception
+
+Block requests or mock responses:
+
+```bash
+bun run browse block "analytics.com"         # Block tracking
+bun run browse mock "/api/user" '{"id":1}'   # Mock API
+bun run browse unmock                          # Clear mocks
+```
+
+## Memory (Persistent Context)
+
+The project includes a memory system for persistent cross-session context.
+
+### Usage
+
+```typescript
+import { Memory } from "@/memory"
+
+// Get relevant context for current task
+const context = await Memory.getContext(projectID, 2000)
+
+// Add user preference
+await Memory.capturePreference(projectID, "prefers TypeScript")
+
+// Capture from session summary
+await Memory.captureFromSummary(projectID, summary, sessionID)
+```
+
+### Memory Types
+
+- `user_preference` - User preferences (high importance)
+- `fact` - Factual information
+- `context` - Context information
+- `summary` - Session summaries
+
+### Configuration
+
+Add to `opencode.json`:
+
+```json
+{
+  "memory": {
+    "enabled": true,
+    "auto_capture": true,
+    "max_memories": 100,
+    "min_importance": 5
+  }
+}
+```
+
+## Model Routing
+
+Intelligent model selection based on task type.
+
+### Configuration
+
+Add to `opencode.json`:
+
+```json
+{
+  "model_routing": {
+    "enabled": true,
+    "default_model": "qwen3-coder:30b",
+    "rules": [
+      {
+        "name": "推理任务",
+        "match": { "keywords": ["推理", "分析", "思考"] },
+        "model": "deepseek-r1:32b",
+        "reasoning_required": true
+      }
+    ]
+  }
+}
+```
+
+### Usage in Code
+
+```typescript
+import { Provider } from "@/provider/provider"
+
+// Auto-select model based on prompt
+const model = await Provider.getModelForTask("帮我分析这段代码")
+```

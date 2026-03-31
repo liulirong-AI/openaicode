@@ -1395,6 +1395,59 @@ export namespace Provider {
     return undefined
   }
 
+  export async function getModelForTask(prompt: string) {
+    const cfg = await Config.get()
+    const routing = cfg.model_routing
+    if (!routing?.enabled || !routing.rules?.length) return undefined
+
+    const normalizedPrompt = prompt.toLowerCase()
+
+    for (const rule of routing.rules) {
+      let matched = false
+
+      if (rule.match?.keywords?.length) {
+        matched = rule.match.keywords.some((kw) => normalizedPrompt.includes(kw.toLowerCase()))
+      }
+
+      if (rule.match?.regex) {
+        const regex = new RegExp(rule.match.regex, "i")
+        matched = matched || regex.test(prompt)
+      }
+
+      if (!matched) continue
+
+      const modelInfo = parseModel(rule.model)
+      const provider = await state().then((s) => s.providers[modelInfo.providerID])
+      if (!provider) continue
+
+      const model = provider.models[modelInfo.modelID]
+      if (!model) continue
+
+      if (rule.reasoning_required && !model.reasoning) continue
+      if (rule.tool_call_required && !model.tool_call) continue
+
+      if (rule.modalities?.length) {
+        const inputModalities = model.modalities?.input ?? []
+        const hasRequiredModality = rule.modalities.some((m) => inputModalities.includes(m as any))
+        if (!hasRequiredModality) continue
+      }
+
+      log.debug({ rule: rule.name, model: rule.model }, "Model routed by rule")
+      return { providerID: modelInfo.providerID, modelID: modelInfo.modelID }
+    }
+
+    if (routing.default_model) {
+      const defaultInfo = parseModel(routing.default_model)
+      const provider = await state().then((s) => s.providers[defaultInfo.providerID])
+      if (provider?.models[defaultInfo.modelID]) {
+        log.debug({ model: routing.default_model }, "Using default model from routing config")
+        return { providerID: defaultInfo.providerID, modelID: defaultInfo.modelID }
+      }
+    }
+
+    return undefined
+  }
+
   const priority = ["gpt-5", "claude-sonnet-4", "big-pickle", "gemini-3-pro"]
   export function sort<T extends { id: string }>(models: T[]) {
     return sortBy(
